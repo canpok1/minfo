@@ -43,7 +43,7 @@ func NewClient(origin string) (*Client, error) {
 	return &Client{origin: o}, nil
 }
 
-const localTimelineMaxLimit = 3
+const localTimelineMaxLimit = 100
 
 func (c *Client) FetchLocalTimeline(limit int) ([]Note, error) {
 	var notes []Note
