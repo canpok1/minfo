@@ -9,3 +9,6 @@ build:
 clean:
 	go clean
 	rm -f ${BINARY_NAME}
+
+test:
+	go test -v ./...
