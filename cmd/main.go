@@ -1,26 +1,32 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
 	"strconv"
+	"time"
 
+	"github.com/canpok1/minfo/internal"
 	"github.com/canpok1/minfo/internal/misskey"
 )
 
 type Args struct {
-	origin string
-	limit  int
+	Origin string
+	Limit  int
 }
 
 type Summary struct {
-	date          string
-	reactionCount int
+	Date          string
+	NoteCount     int
+	ReactionCount int
 }
 
 type Result struct {
-	summaries []Summary
+	Summaries []Summary
+	Latest    string
+	Oldest    string
 }
 
 func main() {
@@ -29,11 +35,13 @@ func main() {
 		panic(err)
 	}
 
-	if result, err := run(args.origin, args.limit); err != nil {
+	if result, err := run(args.Origin, args.Limit); err != nil {
 		panic(err)
 	} else {
-		for _, summary := range result.summaries {
-			fmt.Printf("%s : %d\n", summary.date, summary.reactionCount)
+		if s, err := json.Marshal(*result); err != nil {
+			panic(err)
+		} else {
+			fmt.Println(string(s))
 		}
 	}
 }
@@ -49,8 +57,8 @@ func parseArgs(args []string) (*Args, error) {
 		return nil, err
 	}
 	return &Args{
-		origin: origin,
-		limit:  limit,
+		Origin: origin,
+		Limit:  limit,
 	}, nil
 }
 
@@ -65,23 +73,31 @@ func run(origin string, limit int) (*Result, error) {
 		return nil, fmt.Errorf("failed to FetchLocalTimeline: %w", err)
 	}
 
-	sums := make(map[string]int)
+	summaries := make(map[string]Summary)
 	for _, note := range notes {
-		count := 0
+		reactionCount := 0
 		for _, v := range note.Reactions {
-			count = count + v
+			reactionCount = reactionCount + v
 		}
 
-		k := note.GetCreatedAtAsJST()
-		if sum, exists := sums[k]; exists {
-			sums[k] = sum + count
+		k := internal.FormatTime(internal.ToJST(note.CreatedAt), internal.YYYYMMDD)
+		if summary, exists := summaries[k]; exists {
+			summaries[k] = Summary{
+				Date:          k,
+				ReactionCount: summary.ReactionCount + reactionCount,
+				NoteCount:     summary.NoteCount + 1,
+			}
 		} else {
-			sums[k] = count
+			summaries[k] = Summary{
+				Date:          k,
+				ReactionCount: reactionCount,
+				NoteCount:     1,
+			}
 		}
 	}
 
 	var keys []string
-	for k := range sums {
+	for k := range summaries {
 		keys = append(keys, k)
 	}
 	sort.Slice(keys, func(i, j int) bool {
@@ -89,11 +105,13 @@ func run(origin string, limit int) (*Result, error) {
 	})
 
 	result := Result{
-		summaries: nil,
+		Summaries: nil,
+		Latest:    internal.ToJST(notes[0].CreatedAt).Format(time.RFC3339),
+		Oldest:    internal.ToJST(notes[len(notes)-1].CreatedAt).Format(time.RFC3339),
 	}
 
 	for _, k := range keys {
-		result.summaries = append(result.summaries, Summary{date: k, reactionCount: sums[k]})
+		result.Summaries = append(result.Summaries, summaries[k])
 	}
 
 	return &result, nil

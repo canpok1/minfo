@@ -29,11 +29,6 @@ type Note struct {
 	Text      string    `json:"text"`
 }
 
-func (n *Note) GetCreatedAtAsJST() string {
-	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-	return n.CreatedAt.In(jst).Format("2006/01/02")
-}
-
 type Reaction map[string]int
 
 type Client struct {

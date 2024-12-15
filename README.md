@@ -10,7 +10,7 @@ Misskeyの情報を取得するツールです。
 
 ```
 # run
-# origin : misskey server url
+# origin : misskey server origin
 # limit : fetch count
 make run origin=https://xxxxx limit=10
 
