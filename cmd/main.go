@@ -38,7 +38,7 @@ func main() {
 	if result, err := run(args.Origin, args.Limit); err != nil {
 		panic(err)
 	} else {
-		if s, err := json.Marshal(*result); err != nil {
+		if s, err := json.MarshalIndent(*result, "", "  "); err != nil {
 			panic(err)
 		} else {
 			fmt.Println(string(s))
