@@ -2,17 +2,32 @@
 
 Misskeyの情報を取得するツールです。
 
-## 必要条件
-
-- golang: 1.23
-
 ## 使い方
 
 ```
+Usage:
+  minfo <server_url> [flags]
+
+Flags:
+  -h, --help        help for minfo
+  -l, --limit int   limit the number of notes (default 50)
+```
+
+
+## 開発環境
+### 必要条件
+
+- golang: 1.23
+
+### 各種操作
+
+基本的にmakeコマンドで操作可能
+
+```
 # run
-# origin : misskey server origin
-# limit : fetch count
-make run origin=https://xxxxx limit=10
+# server : misskey server url origin
+# option : tool option
+make run server="https://xxxxx" option="-l 10"
 
 # build
 make build
@@ -20,3 +35,7 @@ make build
 # clean
 make clean
 ```
+
+## リリース方法
+
+gitのタグをプッシュする

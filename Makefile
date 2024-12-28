@@ -1,14 +1,18 @@
 BINARY_NAME=minfo
 
 run:
-	@go run cmd/main.go ${origin} ${limit}
+	@go run main.go ${server} ${option}
 
 build:
-	go build -o ${BINARY_NAME} cmd/main.go
+	go build -o ${BINARY_NAME} main.go
+
+build-release:
+	goreleaser build --snapshot --clean
 
 clean:
 	go clean
 	rm -f ${BINARY_NAME}
+	rm -rf ./dist
 
 test:
 	go test -v ./...
