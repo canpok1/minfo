@@ -9,9 +9,9 @@ Usage:
   minfo <server_url> [flags]
 
 Flags:
-  -h, --help                        help for minfo
-      --ignore-user-names strings   ignore user name list. when the display name is xxxxx@yyyy, username is yyyy.
-  -l, --limit int                   limit the number of notes (default 50)
+  -h, --help                       help for minfo
+      --ignore-usernames strings   list of usernames to ignore (comma separated). when the display name is xxxxx@yyyy, username is yyyy.
+  -l, --limit uint                 limit the number of notes (default 50)
 ```
 
 

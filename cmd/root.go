@@ -114,5 +114,5 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().UintVarP(&limit, "limit", "l", 50, "limit the number of notes")
-	rootCmd.Flags().StringSliceVar(&ignoreUserNames, "ignore-user-names", []string{}, "list of user names to ignore (comma separated). when the display name is xxxxx@yyyy, username is yyyy.")
+	rootCmd.Flags().StringSliceVar(&ignoreUserNames, "ignore-usernames", []string{}, "list of usernames to ignore (comma separated). when the display name is xxxxx@yyyy, username is yyyy.")
 }
