@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	server string
-	limit  int
+	server          string
+	limit           int
+	ignoreUserNames []string
 )
 
 type Summary struct {
@@ -24,9 +25,10 @@ type Summary struct {
 }
 
 type Result struct {
-	Summaries []Summary
-	Latest    string
-	Oldest    string
+	Summaries       []Summary
+	Latest          string
+	Oldest          string
+	IgnoreUserNames []string
 }
 
 var rootCmd = &cobra.Command{
@@ -41,7 +43,12 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("failed to create misskey client: %w", err)
 		}
 
-		notes, err := client.FetchLocalTimeline(limit)
+		ignoreSet := misskey.IgnoreUserNameSet{}
+		for _, userName := range ignoreUserNames {
+			ignoreSet[userName] = struct{}{}
+		}
+
+		notes, err := client.FetchLocalTimeline(limit, ignoreSet)
 		if err != nil {
 			return fmt.Errorf("failed to FetchLocalTimeline: %w", err)
 		}
@@ -78,9 +85,10 @@ var rootCmd = &cobra.Command{
 		})
 
 		result := Result{
-			Summaries: nil,
-			Latest:    internal.ToJST(notes[0].CreatedAt).Format(time.RFC3339),
-			Oldest:    internal.ToJST(notes[len(notes)-1].CreatedAt).Format(time.RFC3339),
+			Summaries:       nil,
+			Latest:          internal.ToJST(notes[0].CreatedAt).Format(time.RFC3339),
+			Oldest:          internal.ToJST(notes[len(notes)-1].CreatedAt).Format(time.RFC3339),
+			IgnoreUserNames: ignoreUserNames,
 		}
 
 		for _, k := range keys {
@@ -106,4 +114,5 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().IntVarP(&limit, "limit", "l", 50, "limit the number of notes")
+	rootCmd.Flags().StringSliceVar(&ignoreUserNames, "ignore-user-names", []string{}, "list of user names to ignore (comma separated). when the display name is xxxxx@yyyy, username is yyyy.")
 }
