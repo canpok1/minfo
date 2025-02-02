@@ -9,8 +9,9 @@ Usage:
   minfo <server_url> [flags]
 
 Flags:
-  -h, --help        help for minfo
-  -l, --limit int   limit the number of notes (default 50)
+  -h, --help                        help for minfo
+      --ignore-user-names strings   ignore user name list. when the display name is xxxxx@yyyy, username is yyyy.
+  -l, --limit int                   limit the number of notes (default 50)
 ```
 
 
@@ -27,7 +28,7 @@ Flags:
 # run
 # server : misskey server url origin
 # option : tool option
-make run server="https://xxxxx" option="-l 10"
+make run server="https://xxxxx" option="-l 10 --ignore-user-names xxxx,yyyy,zzzz"
 
 # build
 make build

@@ -27,9 +27,16 @@ type Note struct {
 	CreatedAt time.Time `json:"createdAt"`
 	Reactions Reaction  `json:"reactions"`
 	Text      string    `json:"text"`
+	User      User      `json:"user"`
+}
+
+type User struct {
+	UserName string `json:"username"`
 }
 
 type Reaction map[string]int
+
+type IgnoreUserNameSet map[string]struct{}
 
 type Client struct {
 	origin *url.URL
@@ -45,27 +52,30 @@ func NewClient(origin string) (*Client, error) {
 
 const localTimelineMaxLimit = 100
 
-func (c *Client) FetchLocalTimeline(limit int) ([]Note, error) {
-	var notes []Note
+func (c *Client) FetchLocalTimeline(limit int, ignoreSet IgnoreUserNameSet) ([]Note, error) {
+	var filteredNotes []Note
 
 	beforeId := ""
-	requestedCount := 0
-	for requestedCount < limit {
-		count := limit - requestedCount
-		if count > localTimelineMaxLimit {
-			count = localTimelineMaxLimit
-		}
+	for len(filteredNotes) < limit {
+		requestCount := min(limit-len(filteredNotes), localTimelineMaxLimit)
 
-		if n, err := c.fetchLocalTimeline(count, beforeId); err != nil {
+		if notes, err := c.fetchLocalTimeline(requestCount, beforeId); err != nil {
 			return nil, fmt.Errorf("failed to fetchLocalTimeline(%d,%s): %w", limit, beforeId, err)
 		} else {
-			notes = append(notes, n...)
-			beforeId = n[len(n)-1].ID
-			requestedCount = requestedCount + count
+			if len(notes) == 0 {
+				break
+			}
+
+			for _, note := range notes {
+				if _, exists := ignoreSet[note.User.UserName]; !exists {
+					filteredNotes = append(filteredNotes, note)
+				}
+			}
+			beforeId = notes[len(notes)-1].ID
 		}
 	}
 
-	return notes, nil
+	return filteredNotes, nil
 }
 
 func (c *Client) fetchLocalTimeline(limit int, untilID string) ([]Note, error) {
