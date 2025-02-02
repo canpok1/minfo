@@ -14,14 +14,14 @@ import (
 
 var (
 	server          string
-	limit           int
+	limit           uint
 	ignoreUserNames []string
 )
 
 type Summary struct {
 	Date          string
 	NoteCount     int
-	ReactionCount int
+	ReactionCount uint64
 }
 
 type Result struct {
@@ -55,7 +55,7 @@ var rootCmd = &cobra.Command{
 
 		summaries := make(map[string]Summary)
 		for _, note := range notes {
-			reactionCount := 0
+			reactionCount := uint64(0)
 			for _, v := range note.Reactions {
 				reactionCount = reactionCount + v
 			}
@@ -113,6 +113,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().IntVarP(&limit, "limit", "l", 50, "limit the number of notes")
-	rootCmd.Flags().StringSliceVar(&ignoreUserNames, "ignore-user-names", []string{}, "list of user names to ignore (comma separated). when the display name is xxxxx@yyyy, username is yyyy.")
+	rootCmd.Flags().UintVarP(&limit, "limit", "l", 50, "limit the number of notes")
+	rootCmd.Flags().StringSliceVar(&ignoreUserNames, "ignore-usernames", []string{}, "list of usernames to ignore (comma separated). when the display name is xxxxx@yyyy, username is yyyy.")
 }
