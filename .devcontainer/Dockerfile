@@ -1,5 +1,5 @@
 # Note: You can use any Debian/Ubuntu based image you want. 
-FROM golang:1.26rc3
+FROM golang:1.26
 
 RUN apt update
 RUN apt install -y jq
